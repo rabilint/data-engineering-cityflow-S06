@@ -1,0 +1,14 @@
+.venv/
+venv/
+.env
+
+data/raw/*
+!data/raw/README.md
+
+*.zip
+*.tar.gz
+*.7z
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+дан?/ 
