@@ -1,0 +1,96 @@
+@startuml
+hide circle
+hide empty members
+skinparam linetype ortho
+
+' Стилізація таблиць під класичний вигляд ER
+skinparam class {
+    HeaderBackgroundColor #5AA847
+    HeaderFontColor white
+    BorderColor black
+}
+
+class "customers" as customers {
+  | **PK** | customer_id | str | NOT NULL |
+  | | full_name | str | NOT NULL |
+  | | email | str | NOT NULL |
+  | | phone | float64 | NULL |
+  | | city | str | NOT NULL |
+  | | service_zone_id | str | NOT NULL |
+  | | registered_at | datetime | NOT NULL |
+  | | customer_status | str | NOT NULL |
+}
+note left of customers
+  **Grain:** Один унікальний
+  зареєстрований клієнт.
+end note
+
+class "merchants" as merchants {
+  | **PK** | merchant_id | str | NOT NULL |
+  | | merchant_name | str | NOT NULL |
+  | | merchant_type | str | NOT NULL |
+  | | city | str | NOT NULL |
+  | | service_zone_id | str | NOT NULL |
+  | | opened_at | datetime | NOT NULL |
+  | | merchant_status | str | NOT NULL |
+}
+note right of merchants
+  **Grain:** Один унікальний заклад
+  (надавач послуг).
+end note
+
+class "products" as products {
+  | **PK** | product_id | str | NOT NULL |
+  | **FK** | merchant_id | str | NOT NULL |
+  | | product_name | str | NOT NULL |
+  | | category | str | NOT NULL |
+  | | unit_price_uah | float64 | NOT NULL |
+  | | is_active | bool | NOT NULL |
+  | | updated_at | datetime | NOT NULL |
+}
+note right of products
+  **Grain:** Один конкретний товар
+  у межах закладу.
+end note
+
+class "orders" as orders {
+  | **PK** | order_id | str | NOT NULL |
+  | **FK** | customer_id | str | NOT NULL |
+  | **FK** | merchant_id | str | NOT NULL |
+  | | created_at | datetime | NOT NULL |
+  | | order_status | str | NOT NULL |
+  | | currency | str | NOT NULL |
+  | | subtotal_amount | float64 | NOT NULL |
+  | | delivery_fee | float64 | NULL |
+  | | discount_amount1 | float64 | NULL |
+  | | total_amount | float64 | NOT NULL |
+}
+note bottom of orders
+  **Grain:** Один факт оформлення
+  замовлення (транзакція).
+end note
+
+class "order_items" as ord_items {
+  | **PK** | order_item_id | str | NOT NULL |
+  | **FK** | order_id | str | NOT NULL |
+  | **FK** | product_id | str | NOT NULL |
+  | | quantity | int | NOT NULL |
+  | | unit_price | float64 | NOT NULL |
+  | | line_discount | float64 | NULL |
+  | | line_total | float64 | NOT NULL |
+  | | currency| str | NOT NULL |
+}
+note bottom of ord_items
+  **Grain:** Одна конкретна позиція
+  (товар) у межах замовлення.
+end note
+
+' --- ЗВ'ЯЗКИ ---
+
+customers ||--o{ orders 
+merchants ||--o{ orders
+merchants ||--o{ products
+orders ||--o{ ord_items
+products ||--o{ ord_items
+
+@enduml

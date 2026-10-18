@@ -1,0 +1,80 @@
+@startuml
+hide circle
+hide empty members
+skinparam linetype ortho
+
+' Стилізація таблиць під класичний вигляд ER
+skinparam class {
+    HeaderBackgroundColor #5AA847
+    HeaderFontColor white
+    BorderColor black
+}
+
+
+class "customers" as customers {
+  | **PK** | customer_id |
+  | | full_name |
+  | | email |
+  | | phone |
+  | | city |
+  | | service_zone_id |
+  | | registered_at |
+  | | customer_status |
+}
+note left of customers
+  **Grain:** Один унікальний
+  зареєстрований клієнт.
+end note
+
+class "merchants" as merchants {
+  | **PK** | merchant_id |
+  | | merchant_name |
+  | | merchant_type |
+  | | city |
+  | | service_zone_id |
+  | | opened_at |
+  | | merchant_status |
+}
+note right of merchants
+  **Grain:** Один унікальний заклад
+  (надавач послуг).
+end note
+
+class "products" as products {
+  | **PK** | product_id |
+  | **FK** | merchant_id |
+  | | product_name |
+  | | category |
+  | | unit_price_uah |
+  | | is_active |
+  | | updated_at |
+}
+note right of products
+  **Grain:** Один конкретний товар
+  у межах закладу.
+end note
+
+class "orders" as orders {
+  | **PK** | order_id |
+  | **FK** | customer_id |
+  | **FK** | merchant_id |
+  | | created_at |
+  | | order_status |
+  | | currency |
+  | | subtotal_amount |
+  | | delivery_fee |
+  | | discount_amount1 |
+  | | total_amount |
+}
+note bottom of orders
+  **Grain:** Один факт оформлення
+  замовлення (транзакція).
+end note
+
+' --- ЗВ'ЯЗКИ ---
+
+customers ||--o{ orders 
+merchants ||--o{ orders
+merchants ||--o{ products
+
+@enduml
